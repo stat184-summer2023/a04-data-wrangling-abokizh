@@ -1,6 +1,6 @@
 ---
 title: "HELPmiss (Data Verbs) Activity"
-author: "YOUR NAME HERE"
+author: "Abdulaziz Bokijonov"
 output: html_notebook
 ---
 
@@ -33,30 +33,30 @@ data("HELPmiss", package = "mosaicData")
 
 ## Task 1: Data Description
 
-*Write several sentences (or a bullet list) describing the HELP Study and the resulting `HELPmiss` data.  Your description should investigate basic data provenance (e.g., Who, What, When, Where, Why, How), explain the setting for the data, specify what each case represents in the data, and remark on inclusion/exclusion criteria.* 
-
-
-- investigate by searching R help documentation
-- there's a research paper cited where additional detail is provided
+* The HELP study was a clinical trial for adult inpatients recruited from a detoxification unit.
+* Patients with no primary care physician were randomized to receive a multidisciplinary assessment and a brief motivational intervention or usual care, with the goal of linking them to primary medical care.
+* HELPmiss data includes data about drug addicted people and the data about their age, sex, substance, recovery and etc.
+* This dataset is relatively filled, because it has very few not applicable data in it.
+* Cases of this data are individuals that have drug problems.
 
 
 
 ## Task 2: Basic Summaries 
 
-*Produce one or more R expressions involving `summarize()` and `HELPmiss` to address each of the following prompts.*
-
 1. number of people (cases) in `HELPmiss` study
 
 ```{r}
 #Your code here 
-
+HELPmiss %>%
+    summarise(total = n())
 ```
 
 2. total number of times in the past 6 months entered a detox program (measured at baseline) for all the people in `HELPmiss`. 
 
 ```{r}
 #Your code here 
-
+HELPmiss %>%
+    summarise(totalDetox = sum(e2b, na.rm=TRUE))
 ```
 
 
@@ -65,53 +65,67 @@ data("HELPmiss", package = "mosaicData")
 
 ```{r}
 #Your code here 
-
+HELPmiss %>%
+    summarise(mean = mean((subset(HELPmiss, anysub == "yes"))$daysanysub, na.rm=TRUE))
 ```
 
 
 
 ## Task 3: Group Summaries  
 
-*Repeat task 2 above, but add code chunks to calculate result group-by-group according to each prompt (i.e. each promt should have three statements for each of the three prompts in task 2).  Be sure to show all R code and write a sentence or two about what you observe in the results. Remember, you can add multiple statistics inside `summary`.* 
-
-
-- males versus females
-- homeless or not
-- substance
-- break down the homeless versus housed further, by sex
-- homeless versus housed broken down by substance
-
 ### males versus females
 ```{r}
 #Your code here
+HELPmiss %>%
+    group_by(sex) %>%
+    summarise(count = n()) %>%
+    head()
 
 ```
+From this command we can see that in total there were 359 men and 111 women in the study.
 
 ### homeless or not
 ```{r}
 #Your code here
+HELPmiss %>%
+    group_by(homeless) %>%
+    summarise(count = sum(e2b, na.rm=TRUE))%>%
+    head()
 
 ```
-
+Total number of times in the past 6 months entered a detox program (measured at baseline) for homeless people was higher than for housed.
 
 ### substance
 ```{r}
 #Your code here
+HELPmiss %>%
+    group_by(substance) %>%
+    summarise(count = n()) %>%
+    head()
 
 ```
+From this code we can see that 185 were on alcohol, 156 on cocaine, and 128 on heroin.
 
 ### homeless versus housed broken down by sex
 ```{r}
 #Your code here
+HELPmiss %>%
+    group_by(sex, homeless) %>%
+    summarise(count = n()) %>%
+    head()
 
 ```
+From this code we can see that there are 182 housed men and 69 women, and there are 177 homeless men and 42 women.
 
 ### homeless versus housed broken down by substance
 ```{r}
 #Your code here
-
+HELPmiss %>%
+    group_by(substance, homeless) %>%
+    summarise(count = n()) %>%
+    head()
 ```
-
+From this code we can see that alcoholics were more homeless than people on other substances.
 
 
 ## Task 4: Data Visualization & Observations
@@ -123,8 +137,12 @@ data("HELPmiss", package = "mosaicData")
 
 ```{r}
 # Your Code here.
-
+ggplot(HELPmiss) +
+  aes(x = age, y = avg_drinks, colour = sex) +
+  geom_point(shape = "circle", size = 1.5) +
+  scale_color_hue(direction = 1) +
+  theme_minimal()
 ```
-
+From the plot with age on x-axis and average number of drinks consumed per day, in past 30 days, we can see that women, regardless of the age, usually consume more alcohol than men. Moreover, we can see that the amount of average drinks regardless of sex somewhat increases as the age increases.
 
 
